@@ -18,10 +18,10 @@ int main(){
     
     
     TREEHK LHK;
-    initTree(LHK);
+    // initTree(LHK);
     
     
-     int soluongmenu = 8;// so luong menu
+    int soluongmenu = 8;// so luong menu
 
     char a [8][70] =     { "1. QUAN LI MAY BAY",
                           "2. QUAN LI CHUYEN BAY",
@@ -32,4 +32,22 @@ int main(){
                           "7. IN DANH SACH CAC VE CON TRONG CUA MOT CHUYEN BAY",
                           "8. THONG KE SO LUOT THUC HIEN CHUYEN BAY CUA TUNG MAY BAY"
                       };
+
+    int m;
+    do
+    {
+
+        ShowCur(false);
+        SetColor(LIGHTBLUE);
+        system("cls");
+        SetColor(2);
+        vekhung(68,35,1,30);
+        PutCharXY(70,36,"ESC: THOAT | ENTER: XAC NHAN",GREEN);
+        m = menu(55,10,a,soluongmenu);
+        
+    }
+    while (m!=-1);
+    
+
+    return 0;
 }
