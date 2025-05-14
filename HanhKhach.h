@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-using namespace std;
+// using namespace std;
 
 struct hanhKhach{
     char CCCD[13];

@@ -1,7 +1,7 @@
 //==================== maybay.h ====================
 #pragma once
 #include <iostream>
-using namespace std;
+// using namespace std;
 
 struct MayBay {
     char soHieuMB[16];
