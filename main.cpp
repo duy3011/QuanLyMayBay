@@ -4,6 +4,13 @@
 #include "HanhKhach.h"
 
 #include <iostream>
+
+#define MAC_DINH 0
+#define HUY_CHUYEN 0
+#define CON_VE 1
+#define HET_VE 2
+#define HOAN_TAT 3
+
 using namespace std;
 
 int main(){
