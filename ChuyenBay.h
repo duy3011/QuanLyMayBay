@@ -1098,3 +1098,271 @@ CONFIRM:
     }
 }
 
+void inMotCB(PTRCB LCB, int current){
+    PTRCB p = LCB;
+    int count = 0;
+    while(count < current){
+        p = p->next;
+        count++;
+    }
+    printf("%-8d|     %-15s| %02d:%02d - %02d / %02d / %04d |    %-19s|     %-7d|    %-13s|      %-8d|    %-9d", count + 1, p->info.maCB, p->info.time.hour, p->info.time.minute, p->info.time.day,p->info.time.month,p->info.time.year,
+            p->info.sbd, p->info.status, p->info.soHieuMB, p->DSVE.soLuongDat, p->DSVE.soLuongVe);
+}
+
+void inDSCB(PTRCB &LCB, DSMB LMB){
+    int currentPage = 1;
+    
+BEGIN:
+    ;
+    system("cls");
+    SetColor(LIGHTBLUE);
+    SetBGColor(0);
+    
+    rectangle(5, 0, 15, 2);
+    gotoxy(7, 1);
+    cout<<"F2: CANCEL";
+    
+    rectangle(25, 0, 15, 2);
+    gotoxy(27, 1);
+    cout<<"F3: EDIT";
+    
+    rectangle(45, 0, 15, 2);
+    gotoxy(47, 1);
+    cout<<"F4: DELETE";
+    
+    rectangle(65, 0, 15, 2);
+    gotoxy(67, 1);
+    cout<<"ESC: EXIT";
+    
+    rectangle(85, 0, 70, 2);
+    gotoxy(87, 1);
+    cout<<"TRANG THAI: 0 - HUY CHUYEN, 1 - CON VE, 2 - HET VE, 3 - HOAN TAT";
+    
+    gotoxy(55, 7);
+    cout<<"DANH SACH CHUYEN BAY";
+    
+    gotoxy(5, 9);
+    cout<<"STT     |    MA CHUYEN BAY   |     NGAY KHOI HANH     |      SAN BAY DEN      | TRANG THAI | SO HIEU MAY BAY | SO VE DA DAT | SO LUONG VE "<<endl;
+    gotoxy(5, 10);
+    cout<<"------------------------------------------------------------------------------------------------------------------------------------------"<<endl;
+    
+    int soCB = countCB(LCB);
+    
+LR:                                //Left and right
+    ;
+    SetColor(LIGHTBLUE);
+    rectangle(60, 39, 10, 2);
+    gotoxy(62, 40);
+    cout<<"PAGE "<<currentPage;
+    SetColor(15);
+    int current = 0;
+    int page = soCB / PAGECB;
+    if(soCB % PAGECB > 0){
+        page++;
+    }
+    
+    if(!emptyCB(LCB)){
+        PTRCB p, q;
+        p = LCB;
+        q = p;                                            //Giu lai de in highlight dong dau tien
+        int i = (currentPage - 1) * PAGECB;
+        int index = 0;                                    //Vi tri can di den
+        while(index < i){
+            p = p->next;
+            q = p;
+            index++;
+        }
+        int y = 11;
+        for(; p != NULL && i < (currentPage * PAGECB); p = p->next){
+            gotoxy(5, y++);
+        printf("%-8d|     %-15s| %02d:%02d - %02d / %02d / %04d |    %-19s|     %-7d|    %-13s|      %-8d|    %-9d", i+1, p->info.maCB, p->info.time.hour, p->info.time.minute, p->info.time.day,p->info.time.month,p->info.time.year,
+                    p->info.sbd, p->info.status, p->info.soHieuMB, p->DSVE.soLuongDat, p->DSVE.soLuongVe);
+            i++;
+        }
+        
+        highlight();
+        gotoxy(5, 11);
+        printf("%-8d|     %-15s| %02d:%02d - %02d / %02d / %04d |    %-19s|     %-7d|    %-13s|      %-8d|    %-9d", (currentPage - 1) * PAGECB + 1, q->info.maCB, q->info.time.hour, q->info.time.minute, q->info.time.day, q->info.time.month, q->info.time.year,
+                q->info.sbd, q->info.status, q->info.soHieuMB, q->DSVE.soLuongDat, q->DSVE.soLuongVe);
+        
+        int f = (currentPage - 1) * PAGECB;
+        int key;
+        do{
+            key = getch();
+            if(key <= 0){
+                key = getch();
+            }
+            switch(key){
+                case UP:
+                    if(current > 0){
+                        normal();
+                        gotoxy(5, current + 11);
+                        inMotCB(LCB, current + f);
+                        current--;
+                        highlight();
+                        gotoxy(5, current + 11);
+                        inMotCB(LCB, current + f);
+                    }
+                    break;
+                    
+                case DOWN:
+                    if((currentPage == page && current + 1 < PAGECB - (page * PAGECB - soCB)) || (currentPage < page && current + 1 < PAGECB)){
+                        normal();
+                        gotoxy(5, current + 11);
+                        inMotCB(LCB, current + f);
+                        current++;
+                        highlight();
+                        gotoxy(5, current + 11);
+                        inMotCB(LCB, current + f);
+                    }
+                    break;
+                    
+                case RIGHT:
+                    if(currentPage < page){
+                        currentPage++;
+                        normal();
+//                        for(int i = 0; i < PAGECB; i++){
+//                            clearError(5, i + 11);
+//                        }
+//                        goto LR;
+                        system("cls");
+                        goto BEGIN;
+                    }
+                    break;
+                    
+                case LEFT:
+                    if(currentPage > 1){
+                        currentPage--;
+                        normal();
+//                        for(int i = 0; i < PAGECB; i++){
+//                            clearError(5, i + 11);
+//                        }
+//                        goto LR;
+                        system("cls");
+                        goto BEGIN;
+                    }
+                    break;
+                
+                case F2:
+                    cancelCB(LCB, current + f, LMB);
+                    goto BEGIN;
+                    break;
+            
+                case F3:
+                    editCB(LCB, current + f, LMB);
+                    goto BEGIN;
+                    break;
+                
+                case F4:
+                    deleteCB(LCB, current + f, LMB);
+                    if(countCB(LCB) % PAGECB == 0){
+//                        currentPage--;
+                    	if(countCB(LCB) == 0){
+//                    		gotoxy(5, 12);
+//        					cout<<"DANH SACH RONG VUI LONG THEM CHUYEN BAY";
+							return;
+						}
+						else{
+							currentPage--;
+						}
+					}
+                    SetBGColor(0);
+                    goto BEGIN;
+                    break;
+            
+                case ESC:
+                    return;
+            }
+        }while(1);
+    }
+    else{
+        gotoxy(5, 12);
+        //SetColor();
+        cout<<"DANH SACH RONG VUI LONG THEM CHUYEN BAY";
+    }
+    getch();
+}
+
+void saveFileDSCB(char *fileName, PTRCB LCB)
+{
+    FILE * f;
+    f = fopen(fileName,"w");
+    if(f)
+    {
+        PTRCB p;
+        for(p = LCB; p != NULL; p = p->next)
+        {
+            fprintf(f,"%s\n%d  %d  %d  %d  %d\n%s\n%d\n%s\n%d\n%d\n", p->info.maCB, p->info.time.hour, p->info.time.minute, p->info.time.day, p->info.time.month, p->info.time.year,
+                p->info.sbd, p->info.status, p->info.soHieuMB, p->DSVE.soLuongDat, p->DSVE.soLuongVe);
+            if(p->DSVE.soLuongDat > 0)
+            {
+                for(int i = 0; i < p->DSVE.soLuongDat; i++)
+                    fprintf(f,"%s  %s          ", p->DSVE.nodes[i].soGhe, p->DSVE.nodes[i].CCCD);
+            }
+            fprintf(f,"\n\n");
+        }
+        fclose(f);
+    }
+    else
+    {
+        alertError("Khong mo duoc file \"PTRCB.txt\" de ghi!", 8, 1);
+    }
+}
+
+void loadFileDSCB(char *fileName, PTRCB &LCB)
+{
+    nodeChuyenBay flight;
+    FILE * f;
+
+    f = fopen(fileName,"rt");
+    if(f)
+    {
+        fseek(f, 0, SEEK_END);
+        if(ftell(f)==0) //gia tri con tro hien tai trong file
+        {
+            fclose(f);
+            return;
+        }
+
+        fseek(f, 0, SEEK_SET);
+        while(!feof(f))
+        {
+            fscanf(f,"%s",&flight.info.maCB);
+            fscanf(f,"%d%d%d%d%d",&flight.info.time.hour, &flight.info.time.minute, &flight.info.time.day, &flight.info.time.month, &flight.info.time.year);
+            fgets(flight.info.sbd,50,f);
+            fgets(flight.info.sbd,50,f);
+            deleteEnter(flight.info.sbd);
+            fscanf(f,"%d", &flight.info.status);
+            fscanf(f,"%s", &flight.info.soHieuMB);
+            fscanf(f,"%d", &flight.DSVE.soLuongDat);
+            fscanf(f,"%d", &flight.DSVE.soLuongVe);
+            flight.DSVE.nodes = new Ve[flight.DSVE.soLuongVe];
+            //CB.dsVe = new Ve[CB.MaxVe];
+            if(flight.DSVE.soLuongDat>0)
+            {
+                for(int i = 0; i < flight.DSVE.soLuongDat; i++)
+                {
+                    fscanf(f,"%s",&flight.DSVE.nodes[i].soGhe);
+                    fscanf(f,"%s",&flight.DSVE.nodes[i].CCCD);
+                }
+            }
+            if(time(flight.info.time) <= 0 && flight.DSVE.soLuongDat == 0){                //Het thoi gian dat ve va khong co ai dat ve
+                flight.info.status = HUY_CHUYEN;                                        //->Huy chuyen bay
+            }
+            else if(time(flight.info.time) <= 0 && flight.info.status != HUY_CHUYEN ){    //Het thoi gian dat ve va co nguoi dat ve
+                flight.info.status = HOAN_TAT;                                            //->Chuyen bay da hoan tat
+            }
+            if(!feof(f))
+            {
+                //insertOrder(LCB, CB);
+                insertOrder(LCB, flight);
+            }
+        }
+        fclose(f);
+    }
+    else
+    {
+        alertError("Khong mo duoc file \"DSCB.txt\"!", 8, 1);
+    }
+//   saveFileDSCB(FileDSCB, LCB);
+}
